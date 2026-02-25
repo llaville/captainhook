@@ -51,6 +51,22 @@ class ReaderTest extends TestCase
                ->run();
     }
 
+    public function testItDisplaysApplicationConfig(): void
+    {
+        $path   = realpath(CH_PATH_FILES . '/config/valid-with-plugins.json');
+        $config = Config\Factory::create($path);
+        $io     = $this->createIOMock();
+        $repo   = $this->createRepositoryMock();
+
+        $io->expects($this->atLeast(2))->method('write');
+
+        $runner = new Reader($io, $config, $repo);
+        $runner->setHook('pre-commit')
+            ->display(Reader::OPT_ACTIONS, true)
+            ->display(Reader::OPT_SETTINGS, true)
+            ->run();
+    }
+
     public function testItDisplaysActionConfig(): void
     {
         $path   = realpath(CH_PATH_FILES . '/config/valid.json');

@@ -143,6 +143,10 @@ class Reader extends Runner\RepositoryAware
         $this->io->write('  - <fg=cyan>Git directory:</fg=cyan> ' . $this->config->getGitDirectory());
         $this->io->write('  - <fg=cyan>Bootstrap file:</fg=cyan> ' . $this->config->getBootstrap());
         $this->io->write('  - <fg=cyan>Install mode:</fg=cyan> ' . $this->config->getRunConfig()->getMode());
+
+        $this->displayCustomSettings();
+        $this->displayRunSettings();
+        $this->displayPluginSettings();
     }
 
     /**
@@ -207,10 +211,11 @@ class Reader extends Runner\RepositoryAware
     /**
      * Display all options
      *
-     * @param \CaptainHook\App\Config\Options $options
+     * @param  \CaptainHook\App\Config\Options $options
+     * @param  string                          $prefix
      * @return void
      */
-    private function displayOptions(Config\Options $options): void
+    private function displayOptions(Config\Options $options, string $prefix = ''): void
     {
         if (empty($options->getAll())) {
             return;
@@ -219,9 +224,9 @@ class Reader extends Runner\RepositoryAware
             return;
         }
 
-        $this->io->write('     <comment>Options:</comment>');
+        $this->io->write($prefix . '     <comment>Options:</comment>');
         foreach ($options->getAll() as $key => $value) {
-            $this->displayOption($key, $value);
+            $this->displayOption($key, $value, $prefix);
         }
     }
 
@@ -356,5 +361,55 @@ class Reader extends Runner\RepositoryAware
     private function yesOrNo(bool $bool): string
     {
         return $bool ? '✅ ' : '❌ ';
+    }
+
+    /**
+     * Display custom config settings
+     *
+     * @return void
+     */
+    private function displayCustomSettings(): void
+    {
+        if (count($this->config->getCustomSettings()) === 0) {
+            return;
+        }
+
+        $this->io->write('  <fg=yellow>Custom Settings:</>');
+        foreach ($this->config->getCustomSettings() as $key => $value) {
+            $this->io->write('    - <fg=cyan>' . $key . '</>: ' . $value);
+        }
+    }
+
+    /**
+     * Display run config settings
+     *
+     * @return void
+     */
+    private function displayRunSettings(): void
+    {
+        $runConfig = $this->config->getRunConfig();
+        $this->io->write('  <fg=yellow>Run Settings:</>');
+        $this->io->write('    - <fg=cyan>mode</>: ' . $runConfig->getMode());
+        $this->io->write('    - <fg=cyan>docker-command</>: ' . $runConfig->getDockerCommand());
+        $this->io->write('    - <fg=cyan>path-captain</>: ' . $runConfig->getCaptainsPath());
+        $this->io->write('    - <fg=cyan>path-git</>: ' . $runConfig->getGitPath());
+    }
+
+    /**
+     * Display plugin settings
+     *
+     * @return void
+     */
+    private function displayPluginSettings(): void
+    {
+        $plugins = $this->config->getPlugins();
+        if (count($plugins) === 0) {
+            return;
+        }
+        $this->io->write('  <fg=magenta>Plugins:</>');
+        foreach ($plugins as $plugin) {
+            $this->io->write('    - <fg=cyan>' . $plugin->getPlugin() . '</>');
+            $this->displayOptions($plugin->getOptions(), '  ');
+        }
     }
 }

@@ -1,0 +1,39 @@
+{
+  "config": {
+    "plugins": [
+      {
+        "plugin": "\\CaptainHook\\App\\Plugin\\DummyPlugin",
+        "options": {"foo": "bar"}
+      }
+    ],
+    "custom": {
+      "foo": "bar",
+      "fiz": "baz"
+    }
+  },
+  "prepare-commit-msg": {
+    "enabled": true,
+    "actions": []
+  },
+  "commit-msg": {
+    "enabled": true,
+    "actions": []
+  },
+  "pre-commit": {
+    "enabled": true,
+    "actions": [
+      {
+        "action": "phpunit --configuration=build/phpunit-hook.xml",
+        "config": {
+          "label": "PHPUnit",
+          "allow-failure": true
+        },
+        "options": {}
+      }
+    ]
+  },
+  "pre-push": {
+    "enabled": false,
+    "actions": []
+  }
+}
