@@ -174,7 +174,12 @@ class Formatter
                 return '';
             }
 
-            $this->io->write('  <fg=cyan>Placeholder: ' . $placeholder . '</>', true, IO::VERBOSE);
+            $this->io->write(
+                '  <fg=cyan>Placeholder: ' . $placeholder . '</>' .  $this->optionsAsString($options),
+                true,
+                IO::VERBOSE
+            );
+
             $processor = $this->createPlaceholder($placeholder);
             $this->cache($rawPlaceholder, $processor->replacement($options));
         }
@@ -254,5 +259,22 @@ class Formatter
     private static function cached(string $placeholder): string
     {
         return self::$cache[$placeholder] ?? '';
+    }
+
+    /**
+     * Generate the options output string
+     *
+     * ['foo' => 'bar'] => '(foo:bar)'
+     *
+     * @param  array<string, string> $options
+     * @return string
+     */
+    private function optionsAsString(array $options): string
+    {
+        $optionsStrings = [];
+        foreach ($options as $name => $value) {
+            $optionsStrings[] = $name . ':' . $value;
+        }
+        return empty($options) ? '' : ' (' . implode(', ', $optionsStrings) . ')';
     }
 }
