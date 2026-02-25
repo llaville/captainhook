@@ -11,9 +11,11 @@
 
 namespace CaptainHook\App\Runner\Action\Cli\Command\Placeholder;
 
+use CaptainHook\App\Config\Plugin;
 use CaptainHook\App\Console\IO\Mockery as IOMockery;
 use CaptainHook\App\Config\Mockery as ConfigMockery;
 use CaptainHook\App\Mockery as AppMockery;
+use CaptainHook\App\Plugin\DummyPlugin;
 use PHPUnit\Framework\TestCase;
 
 class ConfigTest extends TestCase
@@ -57,6 +59,42 @@ class ConfigTest extends TestCase
 
         $placeholder = new Config($io, $config, $repo);
         $replace     = $placeholder->replacement(['value-of' => 'custom>>bar']);
+
+        $this->assertEquals('', $replace);
+    }
+
+    public function testPluginConfigValue(): void
+    {
+        $io     = $this->createIOMock();
+        $repo   = $this->createRepositoryMock();
+        $config = $this->createConfigMock();
+        $config->expects($this->once())->method('getPlugins')->willReturn(
+            [
+                new Plugin(DummyPlugin::class, ['foo' => 'bar']),
+                new Plugin(DummyPlugin::class, ['fiz' => 'baz']),
+            ]
+        );
+
+        $placeholder = new Config($io, $config, $repo);
+        $replace     = $placeholder->replacement(['value-of' => 'plugin>>' . DummyPlugin::class . '.foo']);
+
+        $this->assertEquals('bar', $replace);
+    }
+
+    public function testPluginConfigValueNotFound(): void
+    {
+        $io     = $this->createIOMock();
+        $repo   = $this->createRepositoryMock();
+        $config = $this->createConfigMock();
+        $config->expects($this->once())->method('getPlugins')->willReturn(
+            [
+                new Plugin(DummyPlugin::class, ['foo' => 'bar']),
+                new Plugin(DummyPlugin::class, ['fiz' => 'baz']),
+            ]
+        );
+
+        $placeholder = new Config($io, $config, $repo);
+        $replace     = $placeholder->replacement(['value-of' => 'plugin>>fiz.baz']);
 
         $this->assertEquals('', $replace);
     }

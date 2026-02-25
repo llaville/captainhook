@@ -26,7 +26,7 @@ class Config extends Foundation
      *
      * @var array<string, string>
      */
-    private $valueToMethod = [
+    private array $valueToMethods = [
         'bootstrap'           => 'getBootstrap',
         'git-directory'       => 'getGitDirectory',
         'php-path'            => 'getPhpPath',
@@ -53,16 +53,50 @@ class Config extends Foundation
      */
     private function getConfigValueFor(string $value): string
     {
+        // check if the value should be a custom config value
         if (str_starts_with($value, 'custom>>')) {
-            $key    = substr($value, 8);
-            $custom = $this->config->getCustomSettings();
-            return $custom[$key] ?? '';
+            return $this->findCustomConfigValue($value);
         }
-        if (!isset($this->valueToMethod[$value])) {
+        // check if the value should be a plugin config value
+        if (str_starts_with($value, 'plugin>>')) {
+            return $this->findPluginConfigValue($value);
+        }
+        // if we don't know what method to call, return an empty string
+        if (!isset($this->valueToMethods[$value])) {
             return '';
         }
 
-        $method = $this->valueToMethod[$value];
+        $method = $this->valueToMethods[$value];
         return $this->config->$method();
+    }
+
+    /**
+     * Returns a custom configuration value
+     *
+     * @param  string $value
+     * @return string
+     */
+    private function findCustomConfigValue(string $value): string
+    {
+        $key    = substr($value, 8);
+        $custom = $this->config->getCustomSettings();
+        return $custom[$key] ?? '';
+    }
+
+    /**
+     * Returns a option value for a plugin configuration
+     *
+     * @param  string $value
+     * @return string
+     */
+    private function findPluginConfigValue(string $value): string
+    {
+        [$pluginClass, $key] = explode('.', substr($value, 8));
+        foreach ($this->config->getPlugins() as $plugin) {
+            if ($plugin->getPlugin() === $pluginClass) {
+                return $plugin->getOptions()->get($key);
+            }
+        }
+        return '';
     }
 }
