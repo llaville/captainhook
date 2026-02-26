@@ -11,6 +11,7 @@
 
 namespace CaptainHook\App\Config;
 
+use CaptainHook\App\Config;
 use Exception;
 use PHPUnit\Framework\TestCase;
 
@@ -22,6 +23,14 @@ class FactoryTest extends TestCase
 
         $this->assertTrue($config->getHookConfig('pre-commit')->isEnabled());
         $this->assertCount(1, $config->getHookConfig('pre-commit')->getActions());
+    }
+
+    public function testItDoesAllowArrayActions(): void
+    {
+        $config  = Factory::create(CH_PATH_FILES . '/config/valid-with-multi-line-action.json');
+        $actions = $config->getHookConfig('pre-commit')->getActions();
+
+        $this->assertEquals('foo bar baz', $actions[0]->getAction());
     }
 
     public function testCustomValuesCanBeDefined(): void
