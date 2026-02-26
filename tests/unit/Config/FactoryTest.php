@@ -11,7 +11,6 @@
 
 namespace CaptainHook\App\Config;
 
-use CaptainHook\App\Config;
 use Exception;
 use PHPUnit\Framework\TestCase;
 
