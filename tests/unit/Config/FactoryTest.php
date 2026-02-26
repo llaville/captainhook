@@ -194,9 +194,9 @@ class FactoryTest extends TestCase
 
     public function testMaxIncludeLevel(): void
     {
-        // one of the included files will not be loaded because of the includes-level value of 2
+        // one of the included files will not be loaded because of the include-level value of 2
         $config = Factory::create(realpath(CH_PATH_FILES . '/config/valid-with-exceeded-max-include-level.json'));
-        // all files have combined 6 pre-commit actions but one should not be loaded
+        // all files have combined 6 pre-commit actions, but one should not be loaded
         $this->assertCount(5, $config->getHookConfig('pre-commit')->getActions());
     }
 }
