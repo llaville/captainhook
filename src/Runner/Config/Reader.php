@@ -11,6 +11,7 @@
 
 namespace CaptainHook\App\Runner\Config;
 
+use CaptainHook\App\CH;
 use CaptainHook\App\Config;
 use CaptainHook\App\Hook\Util as HookUtil;
 use CaptainHook\App\Runner;
@@ -119,11 +120,22 @@ class Reader extends Runner\RepositoryAware
         if (!$this->config->isLoadedFromFile()) {
             throw new RuntimeException('No configuration to read');
         }
+        $this->displayHeader();
         $this->displaySettings();
         $this->io->write('<fg=magenta>Hooks:</>');
         foreach ($this->config->getHookConfigs() as $hookConfig) {
             $this->displayHook($hookConfig);
         }
+    }
+
+    private function displayHeader(): void
+    {
+        $this->io->write([
+            '<info>CaptainHook</info> version <comment>' . CH::VERSION . '</comment> ' . CH::RELEASE_DATE,
+            '',
+            'Configuration File: <fg=cyan>' . $this->config->getPath() . '</>',
+            ''
+        ]);
     }
 
     /**
@@ -136,13 +148,16 @@ class Reader extends Runner\RepositoryAware
         if (!$this->show(self::OPT_SETTINGS)) {
             return;
         }
-        $this->io->write('<fg=magenta>Config:</>');
-        $this->io->write('  - <fg=cyan>Verbosity:</fg=cyan> ' . $this->config->getVerbosity());
-        $this->io->write('  - <fg=cyan>Use colors:</fg=cyan> ' . $this->yesOrNo($this->config->useAnsiColors()));
-        $this->io->write('  - <fg=cyan>Allow failures:</fg=cyan> ' . $this->yesOrNo($this->config->isFailureAllowed()));
-        $this->io->write('  - <fg=cyan>Git directory:</fg=cyan> ' . $this->config->getGitDirectory());
-        $this->io->write('  - <fg=cyan>Bootstrap file:</fg=cyan> ' . $this->config->getBootstrap());
-        $this->io->write('  - <fg=cyan>Install mode:</fg=cyan> ' . $this->config->getRunConfig()->getMode());
+        $this->io->write([
+            '<fg=magenta>Config:</>',
+            '  <fg=green>Basic Settings:</>',
+            '    - <fg=cyan>Verbosity:</fg=cyan> ' . $this->config->getVerbosity(),
+            '    - <fg=cyan>Use colors:</fg=cyan> ' . $this->yesOrNo($this->config->useAnsiColors()),
+            '    - <fg=cyan>Allow failures:</fg=cyan> ' . $this->yesOrNo($this->config->isFailureAllowed()),
+            '    - <fg=cyan>Git directory:</fg=cyan> ' . $this->config->getGitDirectory(),
+            '    - <fg=cyan>Bootstrap file:</fg=cyan> ' . $this->config->getBootstrap(),
+            '    - <fg=cyan>Install mode:</fg=cyan> ' . $this->config->getRunConfig()->getMode(),
+        ]);
 
         $this->displayCustomSettings();
         $this->displayRunSettings();
@@ -202,7 +217,7 @@ class Reader extends Runner\RepositoryAware
      */
     private function displayAction(Config\Action $action): void
     {
-        $this->io->write('   - <fg=cyan>' . $action->getAction() . '</>');
+        $this->io->write('    - <fg=cyan>' . $action->getAction() . '</>');
         $this->displayOptions($action->getOptions());
         $this->displayConfig($action);
         $this->displayConditions($action->getConditions());
@@ -224,7 +239,7 @@ class Reader extends Runner\RepositoryAware
             return;
         }
 
-        $this->io->write($prefix . '     <comment>Options:</comment>');
+        $this->io->write($prefix . '      <comment>Options:</comment>');
         foreach ($options->getAll() as $key => $value) {
             $this->displayOption($key, $value, $prefix);
         }
@@ -250,9 +265,13 @@ class Reader extends Runner\RepositoryAware
             $config['failureAllowed'] = true;
         }
         if (!empty($config)) {
-            $this->io->write('     <comment>Config:</comment>');
+            $this->io->write('      <comment>Config:</comment>');
             foreach ($config as $key => $value) {
-                $this->io->write('      - ' . $key . ': <fg=gray>' . $value . '</>');
+                $this->io->write(
+                    '        - ' . $key . ': <fg=gray>' .
+                    $this->escapeLineBreaks($value) .
+                    '</>'
+                );
             }
         }
     }
@@ -270,7 +289,11 @@ class Reader extends Runner\RepositoryAware
         if (is_array($value)) {
             $value = implode(', ', $value);
         }
-        $this->io->write($prefix . '      - ' . $key . ': <fg=gray>' . $value . '</>');
+        $this->io->write(
+            $prefix . '        - ' . $key . ': <fg=gray>' .
+            $this->escapeLineBreaks($value) .
+            '</>'
+        );
     }
 
     /**
@@ -290,7 +313,7 @@ class Reader extends Runner\RepositoryAware
         }
 
         if (empty($prefix)) {
-            $this->io->write($prefix . '     <comment>Conditions:</comment>');
+            $this->io->write($prefix . '      <comment>Conditions:</comment>');
         }
         foreach ($conditions as $condition) {
             $this->displayCondition($condition, $prefix);
@@ -374,7 +397,7 @@ class Reader extends Runner\RepositoryAware
             return;
         }
 
-        $this->io->write('  <fg=yellow>Custom Settings:</>');
+        $this->io->write('  <fg=green>Custom Settings:</>');
         foreach ($this->config->getCustomSettings() as $key => $value) {
             $this->io->write('    - <fg=cyan>' . $key . '</>: ' . $value);
         }
@@ -388,7 +411,7 @@ class Reader extends Runner\RepositoryAware
     private function displayRunSettings(): void
     {
         $runConfig = $this->config->getRunConfig();
-        $this->io->write('  <fg=yellow>Run Settings:</>');
+        $this->io->write('  <fg=green>Run Settings:</>');
         $this->io->write('    - <fg=cyan>mode</>: ' . $runConfig->getMode());
         $this->io->write('    - <fg=cyan>docker-command</>: ' . $runConfig->getDockerCommand());
         $this->io->write('    - <fg=cyan>path-captain</>: ' . $runConfig->getCaptainsPath());
@@ -406,10 +429,25 @@ class Reader extends Runner\RepositoryAware
         if (count($plugins) === 0) {
             return;
         }
-        $this->io->write('  <fg=magenta>Plugins:</>');
+        $this->io->write('  <fg=green>Plugins:</>');
         foreach ($plugins as $plugin) {
             $this->io->write('    - <fg=cyan>' . $plugin->getPlugin() . '</>');
             $this->displayOptions($plugin->getOptions(), '  ');
         }
+    }
+
+    /**
+     * Make sure we do not output the line breaks
+     *
+     * @param  string $value
+     * @return string
+     */
+    private function escapeLineBreaks(string $value): string
+    {
+        return str_replace(
+            ["\r\n", "\r", "\n"],
+            "\\n",
+            $value
+        );
     }
 }
