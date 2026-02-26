@@ -12,11 +12,11 @@ echo shell_exec(
 --EXPECTF--
 Hooks:
   commit-msg
-   - \CaptainHook\App\Hook\Message\Action\Beams
+    - \CaptainHook\App\Hook\Message\Action\Beams
   pre-push
-   - echo foo
+    - echo foo
   pre-commit
-   - echo foo
+    - echo foo
   prepare-commit-msg
   post-commit
   post-merge
