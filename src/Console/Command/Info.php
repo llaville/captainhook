@@ -12,6 +12,7 @@
 namespace CaptainHook\App\Console\Command;
 
 use CaptainHook\App\Console\IOUtil;
+use CaptainHook\App\Runner\Bootstrap\Util as BootstrapUtil;
 use CaptainHook\App\Runner\Config\Reader;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -98,6 +99,8 @@ class Info extends RepositoryAware
             $repo   = $this->createRepository(dirname($config->getGitDirectory()));
 
             $this->determineVerbosity($output, $config);
+
+            BootstrapUtil::handleBootstrap($config, $this->resolver);
 
             $editor = new Reader($io, $config, $repo);
             $editor->setHook(IOUtil::argToString($input->getArgument('hook')))

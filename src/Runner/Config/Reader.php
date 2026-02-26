@@ -120,6 +120,7 @@ class Reader extends Runner\RepositoryAware
         if (!$this->config->isLoadedFromFile()) {
             throw new RuntimeException('No configuration to read');
         }
+
         $this->displayHeader();
         $this->displaySettings();
         $this->io->write('<fg=magenta>Hooks:</>');
@@ -269,7 +270,7 @@ class Reader extends Runner\RepositoryAware
             foreach ($config as $key => $value) {
                 $this->io->write(
                     '        - ' . $key . ': <fg=gray>' .
-                    $this->escapeLineBreaks($value) .
+                    $this->escapeLineBreaks((string)$value) .
                     '</>'
                 );
             }
@@ -291,7 +292,7 @@ class Reader extends Runner\RepositoryAware
         }
         $this->io->write(
             $prefix . '        - ' . $key . ': <fg=gray>' .
-            $this->escapeLineBreaks($value) .
+            $this->escapeLineBreaks((string)$value) .
             '</>'
         );
     }
