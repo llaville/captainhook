@@ -10,6 +10,10 @@ echo shell_exec(
     '--configuration=tests/_files/e2e/config-ok.json'
 );
 --EXPECTF--
+CaptainHook version %s %s
+
+Configuration File: %s
+
 Hooks:
   commit-msg
     - \CaptainHook\App\Hook\Message\Action\Beams
