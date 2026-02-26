@@ -25,7 +25,7 @@ class FactoryTest extends TestCase
         $this->assertCount(1, $config->getHookConfig('pre-commit')->getActions());
     }
 
-    public function testItDoesAllowArrayActions(): void
+    public function testMultiLineActionsAreAllowedAndConvertedProperly(): void
     {
         $config  = Factory::create(CH_PATH_FILES . '/config/valid-with-multi-line-action.json');
         $actions = $config->getHookConfig('pre-commit')->getActions();
