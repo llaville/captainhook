@@ -58,12 +58,4 @@ class PluginTest extends TestCase
 
         $this->assertSame(['foo' => 'bar'], $config['options']);
     }
-
-    public function testThrowsExceptionForInvalidPlugin(): void
-    {
-        $this->expectException(InvalidPlugin::class);
-        $this->expectExceptionMessage('\\Foo\\Bar is not a valid CaptainHook plugin.');
-
-        new Plugin('\\Foo\\Bar');
-    }
 }

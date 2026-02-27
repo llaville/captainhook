@@ -100,8 +100,6 @@ class Info extends RepositoryAware
 
             $this->determineVerbosity($output, $config);
 
-            BootstrapUtil::handleBootstrap($config, $this->resolver);
-
             $editor = new Reader($io, $config, $repo);
             $editor->setHook(IOUtil::argToString($input->getArgument('hook')))
                    ->display(Reader::OPT_ACTIONS, $input->getOption('list-actions'))
