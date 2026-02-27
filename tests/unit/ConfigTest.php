@@ -169,7 +169,7 @@ class ConfigTest extends TestCase
         $this->assertFalse($config->failOnFirstError());
     }
 
-    public function testExportsOnlyEnabledHooksOrHooksWithActionsToJsonData(): void
+    public function testExportsOnlyHooksWithActionsToJsonData(): void
     {
         $config = new Config('./no-config.json');
         $config->getHookConfig('pre-commit')->setEnabled(true);
@@ -177,7 +177,7 @@ class ConfigTest extends TestCase
         $json   = $config->getJsonData();
 
         $this->assertIsArray($json);
-        $this->assertIsArray($json['pre-commit']);
+        $this->assertArrayNotHasKey('pre-commit', $json);
         $this->assertIsArray($json['pre-push']);
         $this->assertArrayNotHasKey('commit-msg', $json);
     }
