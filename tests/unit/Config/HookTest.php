@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 class HookTest extends TestCase
 {
-    public function testDisabledByDefault(): void
+    public function testInitiallyItIsDisabled(): void
     {
         $hook   = new Hook('pre-commit');
         $config = $hook->getJsonData();
@@ -24,7 +24,7 @@ class HookTest extends TestCase
         $this->assertFalse($config['enabled']);
     }
 
-    public function testSetEnabled(): void
+    public function testEnabledStateIsExportedToJsonCorrectly(): void
     {
         $hook   = new Hook('pre-commit');
         $hook->setEnabled(true);
@@ -34,7 +34,7 @@ class HookTest extends TestCase
         $this->assertTrue($config['enabled']);
     }
 
-    public function testEmptyActions(): void
+    public function testInitiallyItHasNoActions(): void
     {
         $hook   = new Hook('pre-commit');
         $config = $hook->getJsonData();
@@ -43,9 +43,9 @@ class HookTest extends TestCase
         $this->assertCount(0, $config['actions']);
     }
 
-    public function testAddAction(): void
+    public function testAllowsAddingActions(): void
     {
-        $hook   = new Hook('pre-commit');
+        $hook = new Hook('pre-commit');
         $hook->addAction(new Action('\\Foo\\Bar'));
         $config = $hook->getJsonData();
 
@@ -53,18 +53,24 @@ class HookTest extends TestCase
         $this->assertCount(1, $config['actions']);
     }
 
-    public function testCanDetermineIfItHasActionsThatWereNotIncluded(): void
+    public function testDeterminesIfItHasActionsThatWereNotIncluded(): void
     {
-        $localAction = new Action('\\Foo\\Bar');
+        $localAction    = new Action('\\Foo\\Bar');
         $includedAction = new Action('\\Foo\\Bar');
         $includedAction->markIncluded();
 
-        $hook   = new Hook('pre-commit');
+        $hook = new Hook('pre-commit');
         $hook->addAction($localAction, $includedAction);
         $this->assertTrue($hook->hasLocalActions());
     }
 
-    public function testCanDetermineIfItHasIncludedActionsOnly(): void
+    public function testDeterminesItCantHaveLocalActionsIfItDoesntHaveAnyActions(): void
+    {
+        $hook = new Hook('pre-commit');
+        $this->assertFalse($hook->hasLocalActions());
+    }
+
+    public function testDeterminesIfItHasIncludedActionsOnly(): void
     {
         $includedAction = new Action('\\Foo\\Bar');
         $includedAction->markIncluded();
@@ -74,7 +80,7 @@ class HookTest extends TestCase
         $this->assertFalse($hook->hasLocalActions());
     }
 
-    public function testAddMultiAction(): void
+    public function testAllowsAddingOfMultipleActions(): void
     {
         $hook   = new Hook('pre-commit');
         $hook->addAction(new Action('\\Foo\\Bar'), new Action('\\Foo\\Bar'));
