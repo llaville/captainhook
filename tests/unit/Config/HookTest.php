@@ -53,6 +53,27 @@ class HookTest extends TestCase
         $this->assertCount(1, $config['actions']);
     }
 
+    public function testCanDetermineIfItHasActionsThatWereNotIncluded(): void
+    {
+        $localAction = new Action('\\Foo\\Bar');
+        $includedAction = new Action('\\Foo\\Bar');
+        $includedAction->markIncluded();
+
+        $hook   = new Hook('pre-commit');
+        $hook->addAction($localAction, $includedAction);
+        $this->assertTrue($hook->hasLocalActions());
+    }
+
+    public function testCanDetermineIfItHasIncludedActionsOnly(): void
+    {
+        $includedAction = new Action('\\Foo\\Bar');
+        $includedAction->markIncluded();
+
+        $hook   = new Hook('pre-commit');
+        $hook->addAction($includedAction);
+        $this->assertFalse($hook->hasLocalActions());
+    }
+
     public function testAddMultiAction(): void
     {
         $hook   = new Hook('pre-commit');
