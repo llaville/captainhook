@@ -94,7 +94,7 @@ class Config extends Foundation
         [$pluginClass, $key] = explode('.', substr($value, 8));
         foreach ($this->config->getPlugins() as $plugin) {
             if ($plugin->getPlugin() === $pluginClass) {
-                return $plugin->getOptions()->get($key);
+                return $plugin->getOptions()->get($key, '');
             }
         }
         return '';
