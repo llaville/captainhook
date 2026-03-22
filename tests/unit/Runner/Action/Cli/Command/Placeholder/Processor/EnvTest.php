@@ -9,32 +9,33 @@
  * file that was distributed with this source code.
  */
 
-namespace CaptainHook\App\Runner\Action\Cli\Command\Placeholder;
+namespace CaptainHook\App\Runner\Action\Cli\Command\Placeholder\Processor;
 
-use CaptainHook\App\Console\IO\Mockery as IOMockery;
 use CaptainHook\App\Config\Mockery as ConfigMockery;
+use CaptainHook\App\Console\IO\Mockery as IOMockery;
 use CaptainHook\App\Mockery as AppMockery;
 use PHPUnit\Framework\TestCase;
 
-class ArgTest extends TestCase
+class EnvTest extends TestCase
 {
     use IOMockery;
     use AppMockery;
     use ConfigMockery;
 
-    public function testArgValue(): void
+    public function testEnvValue(): void
     {
-        $expected = '.git/EDIT.msg';
+        $_ENV['foo'] = 'bar';
 
         $io     = $this->createIOMock();
         $repo   = $this->createRepositoryMock();
         $config = $this->createConfigMock();
-        $io->expects($this->once())->method('getArgument')->with('message-file')->willReturn($expected);
 
-        $placeholder = new Arg($io, $config, $repo);
-        $result      = $placeholder->replacement(['value-of' => 'MESSAGE_FILE']);
+        $placeholder = new Env($io, $config, $repo);
+        $result      = $placeholder->replacement(['value-of' => 'foo']);
 
-        $this->assertEquals($expected, $result);
+        $this->assertEquals('bar', $result);
+
+        unset($_ENV['foo']);
     }
 
     public function testNoValueOf(): void
@@ -42,9 +43,8 @@ class ArgTest extends TestCase
         $io     = $this->createIOMock();
         $repo   = $this->createRepositoryMock();
         $config = $this->createConfigMock();
-        $io->method('getArgument')->willReturn('');
 
-        $placeholder = new Arg($io, $config, $repo);
+        $placeholder = new Env($io, $config, $repo);
         $result      = $placeholder->replacement([]);
 
         $this->assertEquals('', $result);
@@ -55,10 +55,9 @@ class ArgTest extends TestCase
         $io     = $this->createIOMock();
         $repo   = $this->createRepositoryMock();
         $config = $this->createConfigMock();
-        $io->method('getArgument')->with('message-file', 'my-default')->willReturn('my-default');
 
-        $placeholder = new Arg($io, $config, $repo);
-        $result      = $placeholder->replacement(['value-of' => 'MESSAGE_FILE', 'default' => 'my-default']);
+        $placeholder = new Env($io, $config, $repo);
+        $result      = $placeholder->replacement(['value-of' => 'MY_SUPER_ENV_VAR', 'default' => 'my-default']);
 
         $this->assertEquals('my-default', $result);
     }

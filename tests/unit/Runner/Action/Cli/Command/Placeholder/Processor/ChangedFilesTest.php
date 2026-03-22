@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace CaptainHook\App\Runner\Action\Cli\Command\Placeholder;
+namespace CaptainHook\App\Runner\Action\Cli\Command\Placeholder\Processor;
 
-use CaptainHook\App\Console\IO\Mockery as IOMockery;
 use CaptainHook\App\Config\Mockery as ConfigMockery;
+use CaptainHook\App\Console\IO\Mockery as IOMockery;
 use CaptainHook\App\Mockery as AppMockery;
 use PHPUnit\Framework\TestCase;
 

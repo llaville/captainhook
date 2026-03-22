@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace CaptainHook\App\Runner\Action\Cli\Command\Placeholder;
+namespace CaptainHook\App\Runner\Action\Cli\Command\Placeholder\Processor;
 
 /**
  * Class StdIn
