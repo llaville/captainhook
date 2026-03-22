@@ -68,6 +68,28 @@ class FormatterTest extends TestCase
         $this->assertEquals('cmd3 argument foo/file1.php bar/file2.php baz/file3.php', $command3);
     }
 
+    public function testUncacheablePlaceholder(): void
+    {
+        $io     = $this->createIOMock();
+        $config = $this->createConfigMock();
+        $repo   = $this->createRepositoryMock();
+        $index  = $this->createGitIndexOperator(['foo/file1.php', 'bar/file2.php', 'baz/file3.php']);
+        $io->method('getArguments')->willReturn([]);
+        $config->method('getGitDirectory')->willReturn('./');
+        $repo->expects($this->atLeast(4))->method('getIndexOperator')->willReturn($index);
+
+        $formatter = new Formatter($io, $config, $repo);
+        $command1  = $formatter->format(
+            'cmd1 argument {$STAGED_FILES|in-dir:foo|cache:false} {$STAGED_FILES|in-dir:baz|cache:false}'
+        );
+        $command2  = $formatter->format('cmd2 argument {$STAGED_FILES|cache:false}');
+        $command3  = $formatter->format('cmd3 argument {$STAGED_FILES|cache:false}');
+
+        $this->assertEquals('cmd1 argument foo/file1.php baz/file3.php', $command1);
+        $this->assertEquals('cmd2 argument foo/file1.php bar/file2.php baz/file3.php', $command2);
+        $this->assertEquals('cmd3 argument foo/file1.php bar/file2.php baz/file3.php', $command3);
+    }
+
     public function testComplexPlaceholder(): void
     {
         $io     = $this->createIOMock();
