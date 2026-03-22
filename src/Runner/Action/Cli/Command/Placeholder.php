@@ -11,6 +11,8 @@
 
 namespace CaptainHook\App\Runner\Action\Cli\Command;
 
+use CaptainHook\App\Console\IOUtil;
+
 /**
  * Class Placeholder
  *
@@ -112,7 +114,7 @@ class Placeholder
     public function isCacheable(): bool
     {
         if ($this->hasOption('cache')) {
-            return !in_array(strtolower($this->option('cache')), ['n', 'no', 'false', '0', 'off']);
+            return IOUtil::stringToBool($this->option('cache'), true);
         }
         return true;
     }
