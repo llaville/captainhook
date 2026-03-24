@@ -38,6 +38,7 @@ class ActionTest extends TestCase
     {
         $action = new Action('\\Foo\\Bar', [], [], ['allow-failure' => false]);
         $this->assertFalse($action->isFailureAllowed(true));
+        $this->assertFalse($action->hasLabel());
     }
 
     public function testItProvidesAccessToTheAction(): void
@@ -50,6 +51,7 @@ class ActionTest extends TestCase
     {
         $action = new Action('\\Foo\\Bar', [], [], ['label' => 'My label']);
         $this->assertEquals('My label', $action->getLabel());
+        $this->assertTrue($action->hasLabel());
     }
 
     public function testTheLabelIsEmptyByDefault(): void
