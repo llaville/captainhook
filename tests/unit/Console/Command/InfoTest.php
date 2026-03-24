@@ -13,9 +13,6 @@ namespace CaptainHook\App\Console\Command;
 
 use CaptainHook\App\Console\Runtime\Resolver;
 use CaptainHook\App\Git\DummyRepo;
-use CaptainHook\App\Runner\Config\Reader;
-use Exception;
-use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;

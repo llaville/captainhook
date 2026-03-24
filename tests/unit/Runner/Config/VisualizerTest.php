@@ -19,7 +19,7 @@ use Exception;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
 
-class ReaderTest extends TestCase
+class VisualizerTest extends TestCase
 {
     use ConfigMockery;
     use IOMockery;
@@ -33,7 +33,7 @@ class ReaderTest extends TestCase
         $config = $this->createConfigMock();
         $repo   = $this->createRepositoryMock();
 
-        $runner = new Reader($io, $config, $repo);
+        $runner = new Visualizer($io, $config, $repo);
         $runner->setHook('pre-commit')
                ->run();
     }
@@ -46,7 +46,7 @@ class ReaderTest extends TestCase
         $config = $this->createConfigMock(true);
         $repo   = $this->createRepositoryMock();
 
-        $runner = new Reader($io, $config, $repo);
+        $runner = new Visualizer($io, $config, $repo);
         $runner->setHook('foo')
                ->run();
     }
@@ -60,10 +60,10 @@ class ReaderTest extends TestCase
 
         $io->expects($this->atLeast(2))->method('write');
 
-        $runner = new Reader($io, $config, $repo);
+        $runner = new Visualizer($io, $config, $repo);
         $runner->setHook('pre-commit')
-            ->display(Reader::OPT_ACTIONS, true)
-            ->display(Reader::OPT_SETTINGS, true)
+            ->display(Visualizer\Settings::OPT_ACTIONS, true)
+            ->display(Visualizer\Settings::OPT_SETTINGS, true)
             ->run();
     }
 
@@ -76,11 +76,39 @@ class ReaderTest extends TestCase
 
         $io->expects($this->atLeast(2))->method('write');
 
-        $runner = new Reader($io, $config, $repo);
+        $runner = new Visualizer($io, $config, $repo);
         $runner->setHook('pre-commit')
-            ->display(Reader::OPT_ACTIONS, true)
-            ->display(Reader::OPT_CONFIG, true)
+            ->display(Visualizer\Settings::OPT_ACTIONS, true)
+            ->display(Visualizer\Settings::OPT_CONFIG, true)
             ->run();
+    }
+
+    public function testItDisplaysActionConfigByDefault(): void
+    {
+        $path   = realpath(CH_PATH_FILES . '/config/valid.json');
+        $config = Config\Factory::create($path);
+        $io     = $this->createIOMock();
+        $repo   = $this->createRepositoryMock();
+
+        $io->expects($this->atLeast(2))->method('write');
+
+        $runner = new Visualizer($io, $config, $repo);
+        $runner->setHook('pre-commit')->run();
+    }
+
+    public function testDoesNotShowActionForAppSettings(): void
+    {
+        $path   = realpath(CH_PATH_FILES . '/config/valid.json');
+        $config = Config\Factory::create($path);
+        $io     = $this->createIOMock();
+        $repo   = $this->createRepositoryMock();
+
+        // the better thing to test would be to really check the output
+        $io->expects($this->atMost(9))->method('write');
+
+        $runner = new Visualizer($io, $config, $repo);
+        $runner->display(Visualizer\Settings::OPT_SETTINGS, true)
+               ->run();
     }
 
     public function testItDisplaysOnlyActions(): void
@@ -92,9 +120,9 @@ class ReaderTest extends TestCase
 
         $io->expects($this->atLeast(2))->method('write');
 
-        $runner = new Reader($io, $config, $repo);
+        $runner = new Visualizer($io, $config, $repo);
         $runner->setHook('pre-commit')
-               ->display(Reader::OPT_ACTIONS, true)
+               ->display(Visualizer\Settings::OPT_ACTIONS, true)
                ->run();
     }
 
@@ -107,10 +135,10 @@ class ReaderTest extends TestCase
 
         $io->expects($this->atLeast(3))->method('write');
 
-        $runner = new Reader($io, $config, $repo);
+        $runner = new Visualizer($io, $config, $repo);
         $runner->setHook('pre-commit')
-            ->display(Reader::OPT_ACTIONS, true)
-            ->display(Reader::OPT_CONDITIONS, true)
+            ->display(Visualizer\Settings::OPT_ACTIONS, true)
+            ->display(Visualizer\Settings::OPT_CONDITIONS, true)
             ->run();
     }
 
@@ -123,11 +151,11 @@ class ReaderTest extends TestCase
 
         $io->expects($this->atLeast(4))->method('write');
 
-        $runner = new Reader($io, $config, $repo);
-        $runner->display(Reader::OPT_CONFIG, true);
-        $runner->display(Reader::OPT_OPTIONS, true);
-        $runner->display(Reader::OPT_CONDITIONS, true);
-        $runner->display(Reader::OPT_SETTINGS, true);
+        $runner = new Visualizer($io, $config, $repo);
+        $runner->display(Visualizer\Settings::OPT_CONFIG, true);
+        $runner->display(Visualizer\Settings::OPT_OPTIONS, true);
+        $runner->display(Visualizer\Settings::OPT_CONDITIONS, true);
+        $runner->display(Visualizer\Settings::OPT_SETTINGS, true);
         $runner->run();
     }
 
@@ -141,7 +169,7 @@ class ReaderTest extends TestCase
 
         $io->expects($this->atLeast(4))->method('write');
 
-        $runner = new Reader($io, $config, $repo);
+        $runner = new Visualizer($io, $config, $repo);
         $runner->run();
     }
 
@@ -155,9 +183,9 @@ class ReaderTest extends TestCase
         $repo->expects($this->once())->method('hookExists')->willReturn(true);
         $io->expects($this->atLeast(2))->method('write');
 
-        $runner = new Reader($io, $config, $repo);
+        $runner = new Visualizer($io, $config, $repo);
         $runner->setHook('pre-commit')
-            ->display(Reader::OPT_ACTIONS, true)
+            ->display(Visualizer\Settings::OPT_ACTIONS, true)
             ->extensive(true)
             ->run();
     }
