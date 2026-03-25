@@ -28,4 +28,16 @@ class ConditionTest extends TestCase
 
         $this->assertEquals([], $config->getArgs());
     }
+
+    public function testCanIdentifyLogicConditions(): void
+    {
+        $config1 = new Condition('OR');
+        $this->assertTrue($config1->isLogicCondition());
+
+        $config2 = new Condition('AND');
+        $this->assertTrue($config2->isLogicCondition());
+
+        $config3 = new Condition('\\Foo\\Bar');
+        $this->assertFalse($config3->isLogicCondition());
+    }
 }

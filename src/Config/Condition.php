@@ -49,6 +49,16 @@ class Condition
     }
 
     /**
+     * Check if this condition is a logic condition
+     *
+     * @return bool
+     */
+    public function isLogicCondition(): bool
+    {
+        return in_array(strtoupper($this->exec), ['OR', 'AND']);
+    }
+
+    /**
      * Exec getter
      *
      * @return string
