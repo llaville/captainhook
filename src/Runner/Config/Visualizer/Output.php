@@ -220,7 +220,7 @@ final class Output
     public function printAction(Config\Action $action): void
     {
         $this->io->write('    - <fg=cyan>' . $action->getLabel() . '</>');
-        if ($action->hasLabel() && $this->settings->show(Settings::OPT_ACTIONS)) {
+        if ($this->extendedAction($action)) {
             $this->io->write('      <fg=gray>' . $action->getAction() . '</>');
         }
         $this->printOptions($action->getOptions());
@@ -318,21 +318,16 @@ final class Output
         if (is_array($value)) {
             $value = implode(', ', $value);
         }
-        $this->io->write(
-            $prefix . '        - ' . $key . ': <fg=gray>' .
-            Util::escapeLineBreaks($value) .
-            '</>'
-        );
+        $this->io->write($prefix . '        - ' . $key . ': <fg=gray>' . Util::escapeLineBreaks($value) . '</>');
     }
 
     /**
      * Print the action config settings
      *
      * @param  \CaptainHook\App\Config\Action $action
-     * @param  string                         $prefix
      * @return void
      */
-    public function printActionConfig(Config\Action $action, string $prefix = ''): void
+    public function printActionConfig(Config\Action $action): void
     {
         if (!$this->settings->show(Settings::OPT_CONFIG)) {
             return;
@@ -350,11 +345,18 @@ final class Output
         }
         $this->io->write('      <comment>Config:</comment>');
         foreach ($config as $key => $value) {
-            $this->io->write(
-                '        - ' . $key . ': <fg=gray>' .
-                Util::escapeLineBreaks((string)$value) .
-                '</>'
-            );
+            $this->io->write('        - ' . $key . ': <fg=gray>' . Util::escapeLineBreaks((string)$value) . '</>');
         }
+    }
+
+    /**
+     * Check if actions extended information should be displayed
+     *
+     * @param  \CaptainHook\App\Config\Action $action
+     * @return bool
+     */
+    private function extendedAction(Config\Action $action): bool
+    {
+        return $action->hasLabel() && $this->settings->show(Settings::OPT_ACTIONS);
     }
 }
