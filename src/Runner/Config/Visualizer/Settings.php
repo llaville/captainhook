@@ -64,33 +64,4 @@ final class Settings
     {
         return $this->options[$option] ?? false;
     }
-
-    /**
-     * Check if no config part should be shown
-     *
-     * @return void
-     */
-    public function sanityCheck(): void
-    {
-        $displayAnything = false;
-        foreach ($this->options as $option) {
-            if ($option) {
-                $displayAnything = true;
-                break;
-            }
-        }
-        // nothing should be displayed, show actions by default
-        if (!$displayAnything) {
-            $this->options[self::OPT_ACTIONS] = true;
-            return;
-        }
-
-        // check for anything that needs actions to be displayed
-        foreach ([self::OPT_CONDITIONS, self::OPT_OPTIONS, self::OPT_CONFIG] as $option) {
-            if ($this->options[$option]) {
-                $this->options[self::OPT_ACTIONS] = true;
-                return;
-            }
-        }
-    }
 }

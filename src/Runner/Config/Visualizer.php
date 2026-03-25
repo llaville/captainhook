@@ -128,13 +128,6 @@ class Visualizer extends Runner\RepositoryAware
         if (!$this->config->isLoadedFromFile()) {
             throw new RuntimeException('No configuration to read');
         }
-        // make sure to display the necessary parts of the configuration
-        $this->settings->sanityCheck();
-
-        // if at least one hook is given, display the hook actions
-        if (count($this->hooks)) {
-            $this->settings->set(Visualizer\Settings::OPT_ACTIONS, true);
-        }
 
         $this->output->printHeader($this->config);
         $this->displaySettings();
@@ -165,7 +158,7 @@ class Visualizer extends Runner\RepositoryAware
      */
     private function displayHooks(): void
     {
-        if (!$this->settings->show(Visualizer\Settings::OPT_ACTIONS)) {
+        if ($this->isApplicationSettingsOnly()) {
             return;
         }
         $this->output->printHooks($this->hooksToDisplay(), $this->extensive);
@@ -199,5 +192,38 @@ class Visualizer extends Runner\RepositoryAware
             return true;
         }
         return in_array($name, $this->hooks);
+    }
+
+    /**
+     * Check if only the application settings should be displayed
+     *
+     * @return bool
+     */
+    private function isApplicationSettingsOnly(): bool
+    {
+        // no app config to display, so clearly no
+        if (!$this->settings->show(Visualizer\Settings::OPT_SETTINGS)) {
+            return false;
+        }
+
+        // check if any action-related stuff has to be shown
+        $actionRelatedStuff = [
+            Visualizer\Settings::OPT_ACTIONS,
+            Visualizer\Settings::OPT_CONDITIONS,
+            Visualizer\Settings::OPT_OPTIONS,
+            Visualizer\Settings::OPT_CONFIG,
+        ];
+        // if so app config is not the only thing to display
+        foreach ($actionRelatedStuff as $option) {
+            if ($this->settings->show($option)) {
+                return false;
+            }
+        }
+        // if we display a specific hook showing the actions makes sense
+        if (!empty($this->hooks)) {
+            return false;
+        }
+        // otherwise we display only the app config
+        return true;
     }
 }

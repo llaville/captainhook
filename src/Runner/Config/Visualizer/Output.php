@@ -220,7 +220,7 @@ final class Output
     public function printAction(Config\Action $action): void
     {
         $this->io->write('    - <fg=cyan>' . $action->getLabel() . '</>');
-        if ($action->hasLabel()) {
+        if ($action->hasLabel() && $this->settings->show(Settings::OPT_ACTIONS)) {
             $this->io->write('      <fg=gray>' . $action->getAction() . '</>');
         }
         $this->printOptions($action->getOptions());

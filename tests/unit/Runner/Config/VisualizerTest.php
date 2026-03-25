@@ -111,6 +111,22 @@ class VisualizerTest extends TestCase
                ->run();
     }
 
+    public function testDoesShowActionsForAppSettingsWithHookArgument(): void
+    {
+        $path   = realpath(CH_PATH_FILES . '/config/valid.json');
+        $config = Config\Factory::create($path);
+        $io     = $this->createIOMock();
+        $repo   = $this->createRepositoryMock();
+
+        // the better thing to test would be to really check the output
+        $io->expects($this->atMost(11))->method('write');
+
+        $runner = new Visualizer($io, $config, $repo);
+        $runner->display(Visualizer\Settings::OPT_SETTINGS, true)
+            ->setHook('pre-commit')
+            ->run();
+    }
+
     public function testItDisplaysOnlyActions(): void
     {
         $path   = realpath(CH_PATH_FILES . '/config/valid.json');
