@@ -237,13 +237,9 @@ final class Output
      */
     public function printConditions(array $conditions, string $prefix = ''): void
     {
-        if (empty($conditions)) {
+        if (!$this->isConditionToBeDisplayed($conditions)) {
             return;
         }
-        if (!$this->settings->show(Settings::OPT_CONDITIONS)) {
-            return;
-        }
-
         if (empty($prefix)) {
             $this->io->write($prefix . '      <comment>Conditions:</comment>');
         }
@@ -264,7 +260,7 @@ final class Output
         $this->io->write($prefix . '      - <fg=cyan>' . $condition->getExec() . '</>');
 
         // handle logic conditions
-        if (in_array(strtoupper($condition->getExec()), ['OR', 'AND'])) {
+        if ($condition->isLogicCondition()) {
             $conditions = [];
             foreach ($condition->getArgs() as $conf) {
                 $conditions[] = new Config\Condition($conf['exec'], $conf['args'] ?? []);
@@ -333,16 +329,11 @@ final class Output
             return;
         }
 
-        $config = [];
-        if ($action->getLabel() != $action->getAction()) {
-            $config['label'] = $action->getLabel();
-        }
-        if ($action->isFailureAllowed()) {
-            $config['failureAllowed'] = true;
-        }
+        $config = $this->extractActionConfig($action);
         if (empty($config)) {
             return;
         }
+
         $this->io->write('      <comment>Config:</comment>');
         foreach ($config as $key => $value) {
             $this->io->write('        - ' . $key . ': <fg=gray>' . Util::escapeLineBreaks((string)$value) . '</>');
@@ -358,5 +349,40 @@ final class Output
     private function extendedAction(Config\Action $action): bool
     {
         return $action->hasLabel() && $this->settings->show(Settings::OPT_ACTIONS);
+    }
+
+    /**
+     * Check if conditions should be displayed
+     *
+     * @param  array<\CaptainHook\App\Config\Condition> $conditions
+     * @return bool
+     */
+    private function isConditionToBeDisplayed(array $conditions): bool
+    {
+        if (empty($conditions)) {
+            return false;
+        }
+        if (!$this->settings->show(Settings::OPT_CONDITIONS)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Extract the action config settings
+     *
+     * @param  \CaptainHook\App\Config\Action $action
+     * @return array<string, string|bool>
+     */
+    private function extractActionConfig(Config\Action $action): array
+    {
+        $config = [];
+        if ($action->hasLabel()) {
+            $config['label'] = $action->getLabel();
+        }
+        if ($action->isFailureAllowed()) {
+            $config['failureAllowed'] = true;
+        }
+        return $config;
     }
 }

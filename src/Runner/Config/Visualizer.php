@@ -213,7 +213,7 @@ class Visualizer extends Runner\RepositoryAware
             Visualizer\Settings::OPT_OPTIONS,
             Visualizer\Settings::OPT_CONFIG,
         ];
-        // if so app config is not the only thing to display
+        // if the app config is not the only thing to display
         foreach ($actionRelatedStuff as $option) {
             if ($this->settings->show($option)) {
                 return false;
